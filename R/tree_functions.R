@@ -671,9 +671,9 @@ update_tau_betas_j <- function(forest,
                              data){
 
 
-  if(data$dif_order!=0){
-    stop("Do not update tau_beta for peanalised version yet")
-  }
+  # if(data$dif_order!=0){
+  #   stop("Do not update tau_beta for peanalised version yet")
+  # }
 
   # Setting some default hyperparameters
   # a_tau_beta <- d_tau_beta <- 0.1
@@ -708,7 +708,7 @@ update_tau_betas_j <- function(forest,
 
             if(!is.null(cu_t$betas_vec)){
               tau_b_shape[var_] <- tau_b_shape[var_] + length(leaf_basis_subindex)
-              tau_b_rate[var_] <- tau_b_rate[var_] + c(crossprod(cu_t$betas_vec[leaf_basis_subindex]))
+              tau_b_rate[var_] <- tau_b_rate[var_] + c(cu_t$betas_vec[leaf_basis_subindex]%*%crossprod(data$P,cu_t$betas_vec[leaf_basis_subindex]))
             }
 
       }

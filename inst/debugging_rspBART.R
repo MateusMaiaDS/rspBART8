@@ -19,11 +19,11 @@ y_train <- sim_train$y
 
 # x_train <- x_train[,1:5]
 # x_test <- x_test[,1:5]
-n_tree <- 50
+n_tree <- 10
 node_min_size = 5
 n_mcmc = 3000
 n_burn = 0
-alpha = 0.1
+alpha = 0.95
 beta = 2
 df = 3
 sigquant = 0.9
@@ -45,5 +45,5 @@ plot_preview = TRUE
 intercept <- FALSE
 all_var <- TRUE
 scale_init <- FALSE
-update_tau_beta <- FALSE
+update_tau_beta <- TRUE
 stump <- FALSE
