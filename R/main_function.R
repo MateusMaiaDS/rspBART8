@@ -22,7 +22,7 @@ rspBART <- function(x_train,
                     kappa = 2,
                     # Splines parameters
                     nIknots = 3,
-                    dif_order = 2,
+                    dif_order = 1,
                     tau = 100,
                     scale_bool = TRUE,
                     stump = FALSE,
