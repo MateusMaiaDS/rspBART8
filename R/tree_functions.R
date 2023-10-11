@@ -705,10 +705,11 @@ update_tau_betas_j <- function(forest,
 
             # Getting ht leaf basis
             leaf_basis_subindex <- unlist(data$basis_subindex[var_]) # Recall to the unique() function here
-
+            p_ <- length(leaf_basis_subindex)
+            betas_mat_ <- matrix(cu_t$betas_vec[leaf_basis_subindex],nrow = p_)
             if(!is.null(cu_t$betas_vec)){
-              tau_b_shape[var_] <- tau_b_shape[var_] + length(leaf_basis_subindex)
-              tau_b_rate[var_] <- tau_b_rate[var_] + c(cu_t$betas_vec[leaf_basis_subindex]%*%crossprod(data$P,cu_t$betas_vec[leaf_basis_subindex]))
+              tau_b_shape[var_] <- tau_b_shape[var_] + p_
+              tau_b_rate[var_] <- tau_b_rate[var_] + c(betas_mat_%*%crossprod(data$P[leaf_basis_subindex,leaf_basis_subindex, drop = FALSE],betas_mat_))
             }
 
       }
