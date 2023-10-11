@@ -348,18 +348,17 @@ rspBART <- function(x_train,
   }
 
   # Creating the penalty matrix
-  P_train <- crossprod(diff(diag(NCOL(D_train)),differences = dif_order))*tau_mu
 
-  if(dif_order==1){
-    P_train[1,1] = P_train[1,1] + tau_mu
-  } else if(dif_order==2) {
-    P_train[1,1] = P_train[1,1] + tau_mu
-    P_train[NCOL(P_train), NCOL(P_train)] <- P_train[NCOL(P_train), NCOL(P_train)] + tau_mu
-  } else if (dif_order>2) {
-    stop("Insert a lower order for the difference matrix")
-  }
+  all_P <- replicate(NCOL(x_train_scale),
+                     P_gen(D_train_ = B_train_obj,dif_order_ = dif_order,tau_mu_ = tau_mu),simplify = FALSE)
 
-  # Creating the "data" list which contain all elements necessary to run
+  P_train <- as.matrix(Matrix::bdiag(all_P))
+
+  # Adjusting D_train
+  # D_train <- do.call(cbind,replicate(NCOL(x_train_scale),D_train,simplify = FALSE))
+  # D_test <- do.call(cbind,replicate(NCOL(x_train_scale),D_test,simplify = FALSE))
+
+
   #most of the functions
   data <- list(x_train = x_train_scale,
                x_test = x_test_scale,

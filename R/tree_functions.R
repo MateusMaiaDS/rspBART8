@@ -709,7 +709,7 @@ update_tau_betas_j <- function(forest,
             betas_mat_ <- matrix(cu_t$betas_vec[leaf_basis_subindex],nrow = p_)
             if(!is.null(cu_t$betas_vec)){
               tau_b_shape[var_] <- tau_b_shape[var_] + p_
-              tau_b_rate[var_] <- tau_b_rate[var_] + c(betas_mat_%*%crossprod(data$P[leaf_basis_subindex,leaf_basis_subindex, drop = FALSE],betas_mat_))
+              tau_b_rate[var_] <- tau_b_rate[var_] + c(crossprod(betas_mat_,crossprod(data$P[leaf_basis_subindex,leaf_basis_subindex, drop = FALSE],betas_mat_)))
             }
 
       }

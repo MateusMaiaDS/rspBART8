@@ -1,3 +1,20 @@
+# A function to create the penalty matrix P
+P_gen <- function(D_train_, dif_order_,tau_mu_){
+
+  P_train_ <- crossprod(diff(diag(NCOL(D_train_)),differences = dif_order_))*tau_mu_
+
+  if(dif_order==1){
+    P_train_[1,1] = P_train_[1,1] + tau_mu
+  } else if(dif_order==2) {
+    P_train_[1,1] = P_train_[1,1] + tau_mu
+    P_train_[NCOL(P_train_), NCOL(P_train_)] <- P_train_[NCOL(P_train_), NCOL(P_train_)] + tau_mu
+  } else if (dif_order>2) {
+    stop("Insert a lower order for the difference matrix")
+  }
+
+  return(P_train_)
+}
+
 # Creating the D (difference matrix)
 D_gen <- function(p, n_dif){
   return(diff(diag(p),diff = n_dif))
