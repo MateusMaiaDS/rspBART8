@@ -4,8 +4,12 @@ devtools::load_all()
 set.seed(42)
 n_ <- 250
 sd_ <- 1
-sim_train <- mlbench.friedman1.nointeraction(n = n_,sd = sd_)  |> as.data.frame()
-sim_test <- mlbench.friedman1.nointeraction(n = n_,sd = sd_)  |> as.data.frame()
+# sim_train <- mlbench.friedman1.nointeraction(n = n_,sd = sd_)  |> as.data.frame()
+# sim_test <- mlbench.friedman1.nointeraction(n = n_,sd = sd_)  |> as.data.frame()
+
+sim_train <- mlbench.friedman1.nointeraction.noise(n = n_,sd = sd_)  |> as.data.frame()
+sim_test <- mlbench.friedman1.nointeraction.noise(n = n_,sd = sd_)  |> as.data.frame()
+
 
 # sim_train <- mlbench.d1.break(n = n_,sd = 1)  |> as.data.frame()
 # sim_test <- mlbench.d1.break(n = n_,sd = 1) |> as.data.frame()
@@ -37,7 +41,7 @@ usequants = TRUE
 delta <- 1
 
 # Splines parameters
-nIknots = 10
+nIknots = 5
 dif_order = 1
 motrbart_bool <- FALSE
 use_bs <- FALSE

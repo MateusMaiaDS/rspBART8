@@ -3,12 +3,12 @@ P_gen <- function(D_train_, dif_order_,tau_mu_){
 
   P_train_ <- crossprod(diff(diag(NCOL(D_train_)),differences = dif_order_))*tau_mu_
 
-  if(dif_order==1){
-    P_train_[1,1] = P_train_[1,1] + tau_mu
-  } else if(dif_order==2) {
-    P_train_[1,1] = P_train_[1,1] + tau_mu
-    P_train_[NCOL(P_train_), NCOL(P_train_)] <- P_train_[NCOL(P_train_), NCOL(P_train_)] + tau_mu
-  } else if (dif_order>2) {
+  if(dif_order_==1){
+    P_train_[1,1] = P_train_[1,1] + tau_mu_
+  } else if(dif_order_==2) {
+    P_train_[1,1] = P_train_[1,1] + tau_mu_
+    P_train_[NCOL(P_train_), NCOL(P_train_)] <- P_train_[NCOL(P_train_), NCOL(P_train_)] + tau_mu_
+  } else if (dif_order_>2) {
     stop("Insert a lower order for the difference matrix")
   }
 

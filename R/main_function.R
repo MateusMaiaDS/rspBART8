@@ -277,6 +277,10 @@ rspBART <- function(x_train,
 
 
 
+  # Visualising the prior
+  rgamma(n = 1000,shape = a_tau_beta_j,rate = d_tau_beta_j) %>% density() %>% plot(main = "density prior \tau_beta_j")
+  rgamma(n = 1000,shape = a_tau_beta_j,rate = d_tau_beta_j) %>% mean
+
   # Call the bart function
   tau_init <- nsigma^(-2)
 
@@ -420,6 +424,7 @@ rspBART <- function(x_train,
     # Initialising orogress bar
     progress <- i / n_mcmc * 100
 
+    x1_pred <- numeric(nrow(x_train))
     for(t in 1:data$n_tree){
 
       # Calculating the partial residuals
@@ -470,12 +475,22 @@ rspBART <- function(x_train,
       tree_predictions <- getPredictions(tree = forest[[t]],
                                          data = data)
 
-      trees_fit[t,] <- rowSums(tree_predictions$y_train_hat)
-      trees_fit_test[t,] <- rowSums(tree_predictions$y_hat_test)
-      partial_train_fits[[t]] <- tree_predictions$y_train_hat
-
+      # choose_dimension <- 4
+      # if(t==1){
+      #   plot(x_train_scale[,choose_dimension],tree_predictions$y_train_hat[,choose_dimension], pch = 20, main = paste0("X",choose_dimension," partial pred"),ylim = c(range(y_scale)),
+      #        col = ggplot2::alpha("black",0.2))
+      # } else {
+      #   points(x_train_scale[,choose_dimension],tree_predictions$y_train_hat[,choose_dimension], pch=20, col = ggplot2::alpha(t,0.2))
+      # }
+      # trees_fit[t,] <- rowSums(tree_predictions$y_train_hat)
+      # trees_fit_test[t,] <- rowSums(tree_predictions$y_hat_test)
+      # partial_train_fits[[t]] <- tree_predictions$y_train_hat
+      #
+      # x1_pred <- x1_pred + tree_predictions$y_train_hat[,choose_dimension]
 
     }
+
+    # points(x_train_scale[,choose_dimension],x1_pred, pch=20, col = "blue")
 
     # Getting final predcition
     y_hat <- colSums(trees_fit)
