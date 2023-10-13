@@ -354,7 +354,7 @@ rspBART <- function(x_train,
   # Creating the penalty matrix
 
   all_P <- replicate(NCOL(x_train_scale),
-                     P_gen(D_train_ = B_train_obj,dif_order_ = dif_order,tau_mu_ = tau_mu),simplify = FALSE)
+                     P_gen(D_train_ = B_train_obj,dif_order_ = dif_order,tau_mu_ = 1),simplify = FALSE)
 
   P_train <- as.matrix(Matrix::bdiag(all_P))
 
@@ -475,6 +475,8 @@ rspBART <- function(x_train,
       tree_predictions <- getPredictions(tree = forest[[t]],
                                          data = data)
 
+      # selected_var_ <- 9
+      # plot(data$x_train[,selected_var_],tree_predictions$y_train_hat[,selected_var_])
       # choose_dimension <- 4
       # if(t==1){
       #   plot(x_train_scale[,choose_dimension],tree_predictions$y_train_hat[,choose_dimension], pch = 20, main = paste0("X",choose_dimension," partial pred"),ylim = c(range(y_scale)),
@@ -513,6 +515,7 @@ rspBART <- function(x_train,
     } else if (update_tau_beta){
       data$tau_beta <- update_tau_betas(forest = forest,data = data)
     }
+
 
     # Updating delta
     # data$delta <- update_delta(data = data)
