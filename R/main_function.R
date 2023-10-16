@@ -475,6 +475,10 @@ rspBART <- function(x_train,
       tree_predictions <- getPredictions(tree = forest[[t]],
                                          data = data)
 
+      trees_fit[t,] <- rowSums(tree_predictions$y_train_hat)
+      trees_fit_test[t,] <- rowSums(tree_predictions$y_hat_test)
+      partial_train_fits[[t]] <- tree_predictions$y_train_hat
+
       # selected_var_ <- 9
       # plot(data$x_train[,selected_var_],tree_predictions$y_train_hat[,selected_var_])
       # choose_dimension <- 4
@@ -564,6 +568,10 @@ rspBART <- function(x_train,
     all_tau_beta_norm <- all_tau_beta/((max_y-min_y)^2)
 
     for(post_iter in 1:n_mcmc){
+
+      # ==============
+      # FIX THIS LATER
+      # ==============
 
       for(tree_number in 1:n_tree){
         all_trees_fit_norm[[post_iter]][[tree_number]] <- unnormalize_bart(z = all_trees_fit[[post_iter]][[tree_number]],a = min_y,b = max_y)
