@@ -41,11 +41,11 @@ usequants = TRUE
 delta <- 1
 
 # Splines parameters
-nIknots = 5
-dif_order = 1
+nIknots = 2
+dif_order = 2
 motrbart_bool <- FALSE
 use_bs <- FALSE
-plot_preview = TRUE
+plot_preview = FALSE
 intercept <- FALSE
 all_var <- TRUE
 scale_init <- FALSE
