@@ -236,7 +236,9 @@ rspBART <- function(x_train,
     # Maybe need to change that in the future
 
     # tau_mu <- 4*n_tree*(kappa^2)
-    tau_mu <- 4*n_tree*(kappa^2)*(m_tilda)*(nIknots-1)
+    # tau_mu <- 4*n_tree*(kappa^2)*(m_tilda)*(nIknots-1)
+    tau_mu <- 4*n_tree*(kappa^2)*(m_tilda)
+
 
 
 
@@ -247,6 +249,8 @@ rspBART <- function(x_train,
     m_tilda <- mean(diag(tcrossprod(D_train)))
     tau_mu <- (4*n_tree*(kappa^2))/((max_y-min_y)^2)
     tau_mu <- (4*n_tree*(kappa^2)*(m_tilda)*(nIknots-1))/((max_y-min_y)^2)
+    tau_mu <- (4*n_tree*(kappa^2)*(m_tilda))/((max_y-min_y)^2)
+
 
 
   }
@@ -354,7 +358,7 @@ rspBART <- function(x_train,
   # Creating the penalty matrix
 
   all_P <- replicate(NCOL(x_train_scale),
-                     P_gen(D_train_ = B_train_obj,dif_order_ = dif_order,tau_mu_ = tau_mu),simplify = FALSE)
+                     P_gen(D_train_ = B_train_obj,dif_order_ = dif_order,tau_mu_ = 1),simplify = FALSE)
 
   P_train <- as.matrix(Matrix::bdiag(all_P))
 
@@ -484,7 +488,7 @@ rspBART <- function(x_train,
       # plot(data$x_train[,selected_var_],tree_predictions$y_train_hat[,selected_var_])
 
       if(plot_preview){
-        choose_dimension <- 1
+        choose_dimension <- 8
         if(t==1){
           plot(x_train_scale[,choose_dimension],tree_predictions$y_train_hat[,choose_dimension], pch = 20, main = paste0("X",choose_dimension," partial pred"),ylim = range(y_scale),
                col = ggplot2::alpha("black",0.2))
@@ -503,6 +507,7 @@ rspBART <- function(x_train,
       points(x_train_scale[,choose_dimension],x1_pred, pch=20, col = "blue")
       x1_pred <- numeric(nrow(x_train))
     }
+
     # Getting final predcition
     y_hat <- colSums(trees_fit)
     y_hat_test <- colSums(trees_fit_test)

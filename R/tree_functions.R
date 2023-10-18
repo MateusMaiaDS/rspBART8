@@ -650,9 +650,9 @@ updateBetas <- function(tree,
     U_ <- data$P[leaf_basis_subindex,leaf_basis_subindex, drop = FALSE]
     for(k in 1:length(unique(cu_t$ancestors))){
       aux_P_indexes <- unlist(data$basis_subindex[k])
-      U_[aux_P_indexes,aux_P_indexes] <-U_[aux_P_indexes,aux_P_indexes]*(data$tau_beta[cu_t$ancestors[k]])
+      U_[aux_P_indexes,aux_P_indexes] <- U_[aux_P_indexes,aux_P_indexes]*(data$tau_beta[cu_t$ancestors[k]])
     }
-    U_inv_ <- chol2inv(chol(U_))
+    U_inv_ <- U_
     Q_ <- (crossprod(D_leaf) + data$tau^(-1)*U_inv_)
     Q_inv_ <- chol2inv(chol(Q_))
     # Q_inv_ <- solve(Q_)

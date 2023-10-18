@@ -49,5 +49,5 @@ plot_preview = FALSE
 intercept <- FALSE
 all_var <- TRUE
 scale_init <- FALSE
-update_tau_beta <- FALSE
+update_tau_beta <- TRUE
 stump <- FALSE
