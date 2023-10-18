@@ -265,15 +265,15 @@ rspBART <- function(x_train,
 
 
   # Getting hyperparameters for \tau_beta_j
-  # df <- 10
-  a_tau_beta_j <- tau_mu
-  # sigquant_beta <- 0.99
-  # nsigma_beta <- tau_mu^(-1/2)
+  # df <- 3
+  a_tau_beta_j <- df
+  sigquant_beta <- 0.99
+  nsigma_beta <- tau_mu^(-1/2)
 
   # Calculating lambda
-  # qchi_beta <- stats::qchisq(p = 1-sigquant_beta,df = df,lower.tail = 1,ncp = 0)
-  # lambda_beta <- (nsigma_beta*nsigma_beta*qchi_beta)/df
-  d_tau_beta_j <- 1
+  qchi_beta <- stats::qchisq(p = 1-sigquant_beta,df = df,lower.tail = 1,ncp = 0)
+  lambda_beta <- (nsigma_beta*nsigma_beta*qchi_beta)/df
+  d_tau_beta_j <- (lambda_beta*df)/2
 
 
 
@@ -483,24 +483,26 @@ rspBART <- function(x_train,
       # selected_var_ <- 9
       # plot(data$x_train[,selected_var_],tree_predictions$y_train_hat[,selected_var_])
 
-      choose_dimension <- 6
-      if(t==1){
-        plot(x_train_scale[,choose_dimension],tree_predictions$y_train_hat[,choose_dimension], pch = 20, main = paste0("X",choose_dimension," partial pred"),ylim = c(range(y_scale)),
-             col = ggplot2::alpha("black",0.2))
-      } else {
-        points(x_train_scale[,choose_dimension],tree_predictions$y_train_hat[,choose_dimension], pch=20, col = ggplot2::alpha(t,0.2))
+      if(plot_preview){
+        choose_dimension <- 1
+        if(t==1){
+          plot(x_train_scale[,choose_dimension],tree_predictions$y_train_hat[,choose_dimension], pch = 20, main = paste0("X",choose_dimension," partial pred"),ylim = range(y_scale),
+               col = ggplot2::alpha("black",0.2))
+        } else {
+          points(x_train_scale[,choose_dimension],tree_predictions$y_train_hat[,choose_dimension], pch=20, col = ggplot2::alpha(t,0.2))
+        }
+        trees_fit[t,] <- rowSums(tree_predictions$y_train_hat)
+        trees_fit_test[t,] <- rowSums(tree_predictions$y_hat_test)
+        partial_train_fits[[t]] <- tree_predictions$y_train_hat
+
+        x1_pred <- x1_pred + tree_predictions$y_train_hat[,choose_dimension]
       }
-      trees_fit[t,] <- rowSums(tree_predictions$y_train_hat)
-      trees_fit_test[t,] <- rowSums(tree_predictions$y_hat_test)
-      partial_train_fits[[t]] <- tree_predictions$y_train_hat
-
-      x1_pred <- x1_pred + tree_predictions$y_train_hat[,choose_dimension]
-
     }
 
-    points(x_train_scale[,choose_dimension],x1_pred, pch=20, col = "blue")
-    x1_pred <- numeric(nrow(x_train))
-
+    if(plot_preview){
+      points(x_train_scale[,choose_dimension],x1_pred, pch=20, col = "blue")
+      x1_pred <- numeric(nrow(x_train))
+    }
     # Getting final predcition
     y_hat <- colSums(trees_fit)
     y_hat_test <- colSums(trees_fit_test)
