@@ -33,7 +33,8 @@ rspBART <- function(x_train,
                     plot_preview = FALSE,
                     all_var = FALSE,
                     scale_init = FALSE,
-                    update_tau_beta = FALSE
+                    update_tau_beta = FALSE,
+                    main_effects_pred = FALSE
 ) {
 
   # Verifying if x_train and x_test are matrices
@@ -62,6 +63,7 @@ rspBART <- function(x_train,
 
     }
   }
+
 
   # Getting the train and test set
   x_train_scale <- as.matrix(x_train)
@@ -190,6 +192,7 @@ rspBART <- function(x_train,
 
   }
 
+
   # Visualizing the basis
 
   # ==== COMMENTTED FUNCTIONS BELOW NOT RUN WITH IF NOT INSIDE THE FUNCTION
@@ -270,7 +273,7 @@ rspBART <- function(x_train,
 
   # Getting hyperparameters for \tau_beta_j
   # df <- 3
-  a_tau_beta_j <- df
+  a_tau_beta_j <- df/2
   sigquant_beta <- 0.99
   nsigma_beta <- tau_mu^(-1/2)
 
@@ -282,9 +285,10 @@ rspBART <- function(x_train,
 
 
   # Visualising the prior
-  rgamma(n = 1000,shape = a_tau_beta_j,rate = d_tau_beta_j) |> density() |> plot(main = "density prior \tau_beta_j")
-  mean(rgamma(n = 1000,shape = a_tau_beta_j,rate = d_tau_beta_j))
-
+  if(plot_preview){
+    rgamma(n = 1000,shape = a_tau_beta_j,rate = d_tau_beta_j) |> density() |> plot(main = "density prior \tau_beta_j")
+    mean(rgamma(n = 1000,shape = a_tau_beta_j,rate = d_tau_beta_j))
+  }
   # Call the bart function
   tau_init <- nsigma^(-2)
 
@@ -318,9 +322,28 @@ rspBART <- function(x_train,
                                 c("tree_number" , "proposal", "status","mcmc_iter", "new_tree_loglike", "old_tree_loglike"))
   all_train_indexes <- data.frame(matrix(data = NA,nrow = nrow(xcut_m),ncol = ncol(xcut_m)))
 
+  # Creating a list to store all the main effects for the sum of trees
+  if(main_effects_pred){
+
+      # Calculating the main effects
+      main_effects_train_list <- main_effects_test_list <- vector("list", length = length(dummy_x$continuousVars))
+
+      for(list_size in 1:length(dummy_x$continuousVars)){
+        main_effects_train_list[[list_size]] <- matrix(0,nrow = n_mcmc,ncol = nrow(x_train))
+        main_effects_test_list[[list_size]] <- matrix(0,nrow = n_mcmc,ncol = nrow(x_test))
+      }
+
+      names(main_effects_train_list) <- names(main_effects_test_list) <- dummy_x$continuousVars
+
+  } else {
+    main_effects_train_list <- main_effects_test_list <- NULL
+  }
+
   # Gonna create a list of lists to store all the indexes for all split rules and cutpoints
   all_var_splits <- vector("list",ncol(x_train_scale))
   names(all_var_splits) <- colnames(x_train_scale)
+
+
 
   # Iterating over all possible x.columns
   for(i in 1:length(all_var_splits)){
@@ -430,6 +453,7 @@ rspBART <- function(x_train,
     progress <- i / n_mcmc * 100
 
     x1_pred <- numeric(nrow(x_train))
+
     for(t in 1:data$n_tree){
 
       # Calculating the partial residuals
@@ -484,8 +508,9 @@ rspBART <- function(x_train,
       trees_fit_test[t,] <- rowSums(tree_predictions$y_hat_test)
       partial_train_fits[[t]] <- tree_predictions$y_train_hat
 
-      # selected_var_ <- 9
-      # plot(data$x_train[,selected_var_],tree_predictions$y_train_hat[,selected_var_])
+      # ==========================
+      # Running the plot functions
+      # ==========================
 
       if(plot_preview){
         choose_dimension <- 8
@@ -495,18 +520,27 @@ rspBART <- function(x_train,
         } else {
           points(x_train_scale[,choose_dimension],tree_predictions$y_train_hat[,choose_dimension], pch=20, col = ggplot2::alpha(t,0.2))
         }
-        trees_fit[t,] <- rowSums(tree_predictions$y_train_hat)
-        trees_fit_test[t,] <- rowSums(tree_predictions$y_hat_test)
-        partial_train_fits[[t]] <- tree_predictions$y_train_hat
+      }
 
-        x1_pred <- x1_pred + tree_predictions$y_train_hat[,choose_dimension]
+      if(plot_preview){
+        points(x_train_scale[,choose_dimension],x1_pred, pch=20, col = "blue")
+        x1_pred <- numeric(nrow(x_train))
+      }
+
+      trees_fit[t,] <- rowSums(tree_predictions$y_train_hat)
+      trees_fit_test[t,] <- rowSums(tree_predictions$y_hat_test)
+      partial_train_fits[[t]] <- tree_predictions$y_train_hat
+
+      # Adding up the contribution for each tree with respect to the covariate (i)
+      if(main_effects_pred){
+        for(ii in 1:length(main_effects_train_list)){
+          main_effects_train_list[[ii]][i,] <- main_effects_train_list[[ii]][i,] + tree_predictions$y_train_hat[,ii]
+          main_effects_test_list[[ii]][i,] <- main_effects_test_list[[ii]][i,] + tree_predictions$y_hat_test[,ii]
+        }
       }
     }
 
-    if(plot_preview){
-      points(x_train_scale[,choose_dimension],x1_pred, pch=20, col = "blue")
-      x1_pred <- numeric(nrow(x_train))
-    }
+
 
     # Getting final predcition
     y_hat <- colSums(trees_fit)
@@ -588,6 +622,13 @@ rspBART <- function(x_train,
       }
       all_y_hat_norm[post_iter,] <- unnormalize_bart(z = all_y_hat[post_iter,],a = min_y,b = max_y)
       all_y_hat_test_norm[post_iter, ] <- unnormalize_bart(z = all_y_hat_test[post_iter,],a = min_y,b = max_y)
+
+      if(main_effects_pred){
+        for(ii in 1:length(main_effects_train_list)){
+          main_effects_train_list[[ii]][post_iter,] <- unnormalize_bart(z = main_effects_train_list[[ii]][post_iter,],a = min_y,b = max_y)
+          main_effects_test_list[[ii]][post_iter,] <- unnormalize_bart(z = main_effects_test_list[[ii]][post_iter,],a = min_y,b = max_y)
+        }
+      }
     }
   } else {
     all_tau_norm <- all_tau
@@ -599,6 +640,8 @@ rspBART <- function(x_train,
   }
   # plot(colMeans(all_y_hat_norm),y_train)
   # sqrt(crossprod((colMeans(all_y_hat_norm)-y_train))/n_)
+
+  # plot(x_test[,6],main_effects_test_list[[6]][-3000,] %>% colMeans())
 
   # ====== Few analyses from the results ======
   #           (Uncomment to run those)
@@ -656,7 +699,9 @@ rspBART <- function(x_train,
                            d_tau = d_tau),
               mcmc = list(n_mcmc = n_mcmc,
                           n_burn = n_burn,
-                          all_trees = all_trees),
+                          all_trees = all_trees,
+                          main_effects_train = main_effects_train_list,
+                          main_effects_test = main_effects_test_list),
               data = list(x_train = x_train,
                           y_train = y_train,
                           D_train = D_train,
