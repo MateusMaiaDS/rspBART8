@@ -36,7 +36,7 @@ stump <- function(data){
       left = NA,
       right = NA,
       parent_node = NA,
-      ancestors = 1:ncol(data$x_train),
+      ancestors = 1:(ncol(data$x_train)+length(data$interaction_list)),
       terminal = TRUE,
       betas_vec = NULL
     )
@@ -787,8 +787,13 @@ getPredictions <- function(tree,
                            data){
 
   # Creating the vector to hold the values of the prediction
-  y_hat <- matrix(0, nrow = nrow(data$x_train), ncol = ncol(data$x_train))
-  y_hat_test <- matrix(0,nrow(data$x_test), ncol = ncol(data$x_test))
+  if(data$interaction_term){
+    y_hat <- matrix(0, nrow = nrow(data$x_train), ncol = NCOL(data$x_train)+length(data$interaction_list))
+    y_hat_test <- matrix(0,nrow(data$x_test), ncol = NCOL(data$x_test)+length(data$interaction_list))
+  } else {
+    y_hat <- matrix(0, nrow = nrow(data$x_train), ncol = ncol(data$x_train))
+    y_hat_test <- matrix(0,nrow(data$x_test), ncol = ncol(data$x_test))
+  }
 
   # Getting terminal nodes
   t_nodes <- get_terminals(tree = tree)

@@ -1,3 +1,25 @@
+multiply_matrices_general <- function(A, B) {
+  # Get the number of rows and columns for A and B
+  nrow_A <- nrow(A)
+  ncol_A <- ncol(A)
+  nrow_B <- nrow(B)
+  ncol_B <- ncol(B)
+  # Initialize an empty matrix C with dimensions nrow_A x (ncol_A * ncol_B)
+  C <- matrix(0, nrow = nrow_A, ncol = ncol_A * ncol_B)
+  # Check if both matrices have the same number of rows
+  if (nrow_A != nrow_B) {
+    stop("Matrices A and B must have the same number of rows")
+  }
+  # Loop to fill in the values of matrix C
+  for (i in 1:ncol_A) {
+    for (j in 1:ncol_B) {
+      col_idx <- (i - 1) * ncol_B + j
+      C[, col_idx] <- A[, i] * B[, j]
+    }
+  }
+  return(C)
+}
+
 # A function to create the penalty matrix P
 P_gen <- function(D_train_, dif_order_,tau_mu_){
 

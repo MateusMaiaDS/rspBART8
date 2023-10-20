@@ -10,6 +10,8 @@ sd_ <- 1
 sim_train <- mlbench.friedman1.nointeraction.noise(n = n_,sd = sd_)  |> as.data.frame()
 sim_test <- mlbench.friedman1.nointeraction.noise(n = n_,sd = sd_)  |> as.data.frame()
 
+sim_train <- mlbench.friedman1(n = n_,sd = sd_)  |> as.data.frame()
+sim_test <- mlbench.friedman1(n = n_,sd = sd_)  |> as.data.frame()
 
 # sim_train <- mlbench.d1.break(n = n_,sd = 1)  |> as.data.frame()
 # sim_test <- mlbench.d1.break(n = n_,sd = 1) |> as.data.frame()
@@ -23,7 +25,7 @@ y_train <- sim_train$y
 
 # x_train <- x_train[,1:5]
 # x_test <- x_test[,1:5]
-n_tree <- 2
+n_tree <- 10
 node_min_size = 5
 n_mcmc = 3000
 n_burn = 0
@@ -51,4 +53,6 @@ all_var <- TRUE
 scale_init <- FALSE
 update_tau_beta <- TRUE
 stump <- FALSE
-main_effects_pred <- TRUE
+main_effects_pred <- FALSE
+interaction_list <- NULL
+interaction_term <- FALSE
