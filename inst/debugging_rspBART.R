@@ -54,5 +54,5 @@ scale_init <- FALSE
 update_tau_beta <- TRUE
 stump <- FALSE
 main_effects_pred <- FALSE
-interaction_list <- NULL
-interaction_term <- FALSE
+interaction_list <- list(c(1,2))
+interaction_term <- TRUE

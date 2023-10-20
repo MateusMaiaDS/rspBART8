@@ -688,9 +688,15 @@ update_tau_betas_j <- function(forest,
   tau_b_rate <- 0.0
 
 
-  tau_b_shape <- numeric(NCOL(data$x_train))
-  tau_b_rate <- numeric(NCOL(data$x_train))
-  tau_beta_vec_aux <- numeric(NCOL(data$x_train))
+  if(data$interaction_term){
+    tau_b_shape <- numeric(NCOL(data$x_train)+length(data$interaction_list))
+    tau_b_rate <- numeric(NCOL(data$x_train)+length(data$interaction_list))
+    tau_beta_vec_aux <- numeric(NCOL(data$x_train)+length(data$interaction_list))
+  } else{
+    tau_b_shape <- numeric(NCOL(data$x_train))
+    tau_b_rate <- numeric(NCOL(data$x_train))
+    tau_beta_vec_aux <- numeric(NCOL(data$x_train))
+  }
 
   # Iterating over all trees
   for(i in 1:length(forest)){
@@ -704,7 +710,7 @@ update_tau_betas_j <- function(forest,
 
       cu_t <- forest[[i]][[t_nodes_names[j]]]
 
-      for(var_  in 1:NCOL(data$x_train)){
+      for(var_  in 1:length(cu_t$ancestors)){
 
             # Getting ht leaf basis
             leaf_basis_subindex <- unlist(data$basis_subindex[var_]) # Recall to the unique() function here
@@ -722,11 +728,20 @@ update_tau_betas_j <- function(forest,
 
   }
 
-  for(j in 1:NCOL(data$x_train)){
-    tau_beta_vec_aux[j] <- rgamma(n = 1,
-                               shape = 0.5*tau_b_shape[j] + a_tau_beta,
-                               rate = 0.5*tau_b_rate[j] + d_tau_beta)
+  if(data$interaction_term){
+      for(j in 1:(NCOL(data$x_train)+length(data$interaction_list))){
+        tau_beta_vec_aux[j] <- rgamma(n = 1,
+                                   shape = 0.5*tau_b_shape[j] + a_tau_beta,
+                                   rate = 0.5*tau_b_rate[j] + d_tau_beta)
 
+      }
+  } else {
+      for(j in 1:NCOL(data$x_train)){
+        tau_beta_vec_aux[j] <- rgamma(n = 1,
+                                      shape = 0.5*tau_b_shape[j] + a_tau_beta,
+                                      rate = 0.5*tau_b_rate[j] + d_tau_beta)
+
+      }
   }
 
   return(tau_beta_vec_aux)

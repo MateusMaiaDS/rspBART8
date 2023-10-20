@@ -351,7 +351,11 @@ rspBART <- function(x_train,
     tau_beta <- rep(tau_mu,NCOL(x_train_scale))
   }
    # In this first scenario we are going to work with a single value of \tau
-  all_tau_beta <- matrix(NA, nrow = (n_mcmc), ncol = NCOL(x_train_scale))
+  if(interaction_term){
+    all_tau_beta <- matrix(NA, nrow = (n_mcmc), ncol = NCOL(x_train_scale)+length(interaction_list))
+  } else {
+    all_tau_beta <- matrix(NA, nrow = (n_mcmc), ncol = NCOL(x_train_scale))
+  }
   # all_delta <- numeric(n_mcmc)
   all_tau <- numeric(n_mcmc)
 
@@ -663,7 +667,13 @@ rspBART <- function(x_train,
 
   # Normalising elements
   all_tau_norm <- numeric(n_mcmc)
-  all_tau_beta_norm <- matrix(NA,nrow = n_mcmc, NCOL(x_train_scale))
+
+  if(interaction_term){
+    all_tau_beta_norm <- matrix(NA,nrow = n_mcmc,ncol = NCOL(x_train_scale)+length(interaction_list))
+  } else {
+    all_tau_beta_norm <- matrix(NA,nrow = n_mcmc,ncol = NCOL(x_train_scale))
+  }
+
   all_trees_fit_norm <- vector("list",n_mcmc)
   all_y_hat_norm <- matrix(NA,nrow = nrow(all_y_hat),ncol = ncol(all_y_hat))
   all_y_hat_test_norm <- matrix(NA,nrow = nrow(all_y_hat_test),ncol = ncol(all_y_hat_test))
