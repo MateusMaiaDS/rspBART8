@@ -34,9 +34,15 @@ rspBART <- function(x_train,
                     all_var = FALSE,
                     scale_init = FALSE,
                     update_tau_beta = FALSE,
-                    main_effects_pred = FALSE
+                    main_effects_pred = FALSE,
+                    interaction_term =  FALSE,
+                    interaction_list = NULL,
 ) {
 
+
+  if(interaction_term & is.null(interaction_list)){
+    stop("Define the interaction list.")
+  }
   # Verifying if x_train and x_test are matrices
   if(!is.data.frame(x_train) || !is.data.frame(x_test)){
     stop("Insert valid data.frame for both data and xnew.")
@@ -579,7 +585,7 @@ rspBART <- function(x_train,
       # Running the plot functions
       # ==========================
 
-      if(plot_preview){
+      if(!plot_preview){
         choose_dimension <- 1
         if(t==1){
           plot(x_train_scale[,choose_dimension],tree_predictions$y_train_hat[,choose_dimension], pch = 20, main = paste0("X",choose_dimension," partial pred"),ylim = range(y_scale),
@@ -714,7 +720,7 @@ rspBART <- function(x_train,
   # plot(colMeans(all_y_hat_norm),y_train)
   # sqrt(crossprod((colMeans(all_y_hat_norm)-y_train))/n_)
 
-  plot(x_test[,5],main_effects_test_list[[5]][1:i,] %>% colMeans(), ylab = "y")
+  # plot(x_test[,5],main_effects_test_list[[5]][1:i,] %>% colMeans(), ylab = "y")
 
   # ====== Few analyses from the results ======
   #           (Uncomment to run those)
