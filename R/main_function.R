@@ -36,7 +36,7 @@ rspBART <- function(x_train,
                     update_tau_beta = FALSE,
                     main_effects_pred = FALSE,
                     interaction_term =  FALSE,
-                    interaction_list = NULL,
+                    interaction_list = NULL
 ) {
 
 

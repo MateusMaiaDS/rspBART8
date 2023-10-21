@@ -12,8 +12,9 @@ set.seed(42)
 n_ <- 250
 sd_ <- 1
 n_rep_ <- 10
-nIknots_ <- 10
+nIknots_ <- 2
 ntree_ <- 200
+dif_order_ <- 1
 use_bs_ <- FALSE
 seed_ <- 42
 motr_bart_ <- FALSE
@@ -27,7 +28,7 @@ update_tau_beta_ <- TRUE
 # (1): "oned_break" one dimensionnal sin(2*x) with a break
 # (2): "friedman_nointer_nonoise": four-dimensional friedmna setting with no interaction terms and no extra X noise variables
 
-type_ <- c("friedman_nointer_noise")
+type_ <- c("friedman_inter_noise")
 
 # type_ <- c("friedman_inter_noise")
 
@@ -95,7 +96,7 @@ result <- foreach(i = 1:n_rep_, .packages = c("dbarts","SoftBart","MOTRbart","dp
     aux <- all_bart_lite(cv_element = cv_[[i]],
                          nIknots_ = nIknots_,ntree_ = ntree_,seed_ = seed_,
                          use_bs_ = use_bs_,alpha_ = alpha_,rsp_bart_all_ = all_,
-                         j = i,motr_bart_ = motr_bart_, stump = stump_,
+                         j = i,motr_bart_ = motr_bart_, stump = stump_,dif_order_ = dif_order_,
                          scale_init = scale_init_,update_tau_beta_ = update_tau_beta_)
   # }
 
@@ -127,11 +128,11 @@ if(type_ == "friedman_nointer_nonoise"){
         saveRDS(object = result,file = paste0("/users/research/mmarques/spline_bart_lab/preliminar_results/rspBART8/friedman_noint_nonoise/oned_n_",n_,
                                               "_sd_",sd_,"_nIknots_",nIknots_,"_ntree_",ntree_,"_bs_",use_bs_,
                                               "_motr_bart_",motr_bart_,"_allvar_",all_,"_stump_",stump_,
-                                              "_sinit_",scale_init_,"_alpha_",alpha_,"_uptaubeta_",update_tau_beta_,".Rds"))
+                                              "_sinit_",scale_init_,"_alpha_",alpha_,"_uptaubeta_",update_tau_beta_,"_dif_",dif_order_,".Rds"))
       }
     } else {
       saveRDS(object = result,file = paste0("/users/research/mmarques/spline_bart_lab/preliminar_results/rspBART8/friedman_noint_nonoise/oned_n_",n_,
-                                            "_sd_",sd_,"_nIknots_",nIknots_,"_ntree_",ntree_,"_bs_",use_bs_,"_motr_bart_",motr_bart_,"_alpha_",alpha_,"_stump_",stump_,".Rds"))
+                                            "_sd_",sd_,"_nIknots_",nIknots_,"_ntree_",ntree_,"_bs_",use_bs_,"_motr_bart_",motr_bart_,"_alpha_",alpha_,"_stump_",stump_,"_dif_",dif_order_,".Rds"))
     }
 
 }
@@ -140,14 +141,14 @@ if(type_ == "friedman_inter_noise"){
       saveRDS(object = result,file = paste0("/users/research/mmarques/spline_bart_lab/preliminar_results/rspBART8/friedman/oned_n_",n_,
                                             "_sd_",sd_,"_nIknots_",nIknots_,"_ntree_",ntree_,"_bs_",use_bs_,
                                             "_motr_bart_",motr_bart_,"_allvar_",all_,"_stump_",stump_,
-                                            "_sinit_",scale_init_,"_alpha_",alpha_,"_uptaubeta_",update_tau_beta_,".Rds"))
+                                            "_sinit_",scale_init_,"_alpha_",alpha_,"_uptaubeta_",update_tau_beta_,"_dif_",dif_order_,".Rds"))
 }
 
 if(type_ == "friedman_nointer_noise"){
   saveRDS(object = result,file = paste0("/users/research/mmarques/spline_bart_lab/preliminar_results/rspBART8/friedman_noint_noise/oned_n_",n_,
                                         "_sd_",sd_,"_nIknots_",nIknots_,"_ntree_",ntree_,"_bs_",use_bs_,
                                         "_motr_bart_",motr_bart_,"_allvar_",all_,"_stump_",stump_,
-                                        "_sinit_",scale_init_,"_alpha_",alpha_,"_uptaubeta_",update_tau_beta_,".Rds"))
+                                        "_sinit_",scale_init_,"_alpha_",alpha_,"_uptaubeta_",update_tau_beta_,"_dif_",dif_order_,".Rds"))
 }
 
 

@@ -100,7 +100,8 @@ all_bart_lite <- function(cv_element,
                      rsp_bart_all_,
                      stump_,
                      scale_init_,
-                     update_tau_beta_){
+                     update_tau_beta_,
+                     dif_order_){
 
 
   # Doing a warming for the case whichI don't have
@@ -169,7 +170,7 @@ all_bart_lite <- function(cv_element,
                       n_mcmc = 2500,node_min_size = 5,alpha = alpha_,
                       n_burn = 0,nIknots = nIknots_,n_tree = ntree_,
                       use_bs = use_bs_,all_var = rsp_bart_all_,
-                      stump = FALSE,dif_order = 1,
+                      stump = FALSE,dif_order = dif_order_,
                       motrbart_bool = motr_bart_,
                       scale_init = scale_init_,
                       update_tau_beta = update_tau_beta_)
