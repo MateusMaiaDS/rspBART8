@@ -825,6 +825,7 @@ getPredictions <- function(tree,
     if(length(leaf_ancestors)!=length(leaf_basis_subindex)){
       stop("Error on the getPredictions function")
     }
+
     # Only add the marginal effects if the variables are within that terminal node
     if(length(leaf_basis_subindex)!=0){
       for(k in 1:length(leaf_basis_subindex)){

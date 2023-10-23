@@ -5,17 +5,14 @@ multiply_matrices_general <- function(A, B) {
   nrow_B <- nrow(B)
   ncol_B <- ncol(B)
   # Initialize an empty matrix C with dimensions nrow_A x (ncol_A * ncol_B)
-  C <- matrix(0, nrow = nrow_A, ncol = ncol_A * ncol_B)
+  C <- A[,1]*B
   # Check if both matrices have the same number of rows
   if (nrow_A != nrow_B) {
     stop("Matrices A and B must have the same number of rows")
   }
   # Loop to fill in the values of matrix C
-  for (i in 1:ncol_A) {
-    for (j in 1:ncol_B) {
-      col_idx <- (i - 1) * ncol_B + j
-      C[, col_idx] <- A[, i] * B[, j]
-    }
+  for (i in 2:ncol_A) {
+      C <-  cbind(C,(A[, i]*B))
   }
   return(C)
 }

@@ -236,7 +236,7 @@ rspBART <- function(x_train,
     for (jj in 1:length(interaction_list)) {
       interaction_matrix_list[[jj]] <- multiply_matrices_general(A = B_train_obj[[interaction_list[[jj]][1]]],B = B_train_obj[[interaction_list[[jj]][2]]])
       D_train[,basis_subindex[[NCOL(x_train_scale)+jj]]] <- interaction_matrix_list[[jj]]
-      D_test[,basis_subindex[[NCOL(x_test_scale)+jj]]] <- multiply_matrices_general(A = B_test_obj[[interaction_list[[jj]][2]]],B = B_test_obj[[interaction_list[[jj]][2]]])
+      D_test[,basis_subindex[[NCOL(x_test_scale)+jj]]] <- multiply_matrices_general(A = B_test_obj[[interaction_list[[jj]][1]]],B = B_test_obj[[interaction_list[[jj]][2]]])
     }
   }
 
@@ -452,8 +452,14 @@ rspBART <- function(x_train,
   all_P <- replicate(NCOL(x_train_scale),
                      P_gen(D_train_ = B_train_obj[[1]],dif_order_ = dif_order,tau_mu_ = 1),simplify = FALSE)
   if(interaction_term){
-    all_P <- append(all_P,lapply(interaction_matrix_list,function(mmm){P_gen(D_train_ = mmm,dif_order_ = dif_order,tau_mu_ = 1)}))
+    # Adding the penalty term for the interactions
+    for( ii in 1:length(interaction_list)){
+        all_P_aux <- list(kronecker(all_P[[interaction_list[[ii]][1]]],all_P[[interaction_list[[ii]][2]]]))
+    }
+
+    all_P <- append(all_P,all_P_aux)
   }
+
   P_train <- as.matrix(Matrix::bdiag(all_P))
 
   # Adjusting D_train
@@ -585,8 +591,8 @@ rspBART <- function(x_train,
       # Running the plot functions
       # ==========================
 
-      if(!plot_preview){
-        choose_dimension <- 1
+      if(plot_preview){
+        choose_dimension <- 11
         if(t==1){
           plot(x_train_scale[,choose_dimension],tree_predictions$y_train_hat[,choose_dimension], pch = 20, main = paste0("X",choose_dimension," partial pred"),ylim = range(y_scale),
                col = ggplot2::alpha("black",0.2))
@@ -596,7 +602,8 @@ rspBART <- function(x_train,
       }
 
       if(plot_preview){
-        points(x_train_scale[,choose_dimension],x1_pred, pch=20, col = "blue")
+        # points(x_train_scale[,choose_dimension],x1_pred, pch=20, col = "blue")
+        plot(10*(sin(x_train_scale[,1]*x_train_scale[,2])),tree_predictions$y_hat_test[,11], pch=20, col = "blue")
         x1_pred <- numeric(nrow(x_train))
       }
 
@@ -761,9 +768,7 @@ rspBART <- function(x_train,
   #     }
   #
   # }
-
-
-
+  # rmse(x = sim_train$,y = all_y_hat_test_norm %>% colMeans())
 
   # Return the list with all objects and parameters
   return(list(y_train_hat = all_y_hat_norm,
