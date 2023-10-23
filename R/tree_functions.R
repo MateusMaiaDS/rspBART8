@@ -285,15 +285,18 @@ grow <- function(tree,
                            betas_vec = rep(0,ncol(data$D_train)))
     } else {
 
+      # In case there's INTERACTION TERM
       if(data$interaction_term){
-              if(!identical(g_node$ancestors,1:NCOL(data$x_train))){
-        stop("No match in ancestors")
-      }
 
-
-      # Correcting the verification in the grow
-      } else {
         if(!identical(g_node$ancestors,1:(NCOL(data$x_train)+length(data$interaction_list)))){
+          stop("No match in ancestors")
+        }
+
+        # Correcting the verification in the grow
+      } else {
+
+        # Verification
+        if(!identical(g_node$ancestors,1:NCOL(data$x_train))){
           stop("No match in ancestors")
         }
 
