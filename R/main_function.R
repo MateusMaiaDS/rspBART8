@@ -356,7 +356,8 @@ rspBART <- function(x_train,
   } else {
     tau_beta <- rep(tau_mu,NCOL(x_train_scale))
   }
-   # In this first scenario we are going to work with a single value of \tau
+
+  # In this first scenario we are going to work with a single value of \tau
   if(interaction_term){
     all_tau_beta <- matrix(NA, nrow = (n_mcmc), ncol = NCOL(x_train_scale)+length(interaction_list))
   } else {
@@ -388,11 +389,18 @@ rspBART <- function(x_train,
         main_effects_train_list <- main_effects_test_list <- vector("list", length = length(dummy_x$continuousVars)+length(interaction_list))
 
         for(list_size in 1:length(main_effects_train_list)){
-          main_effects_train_list[[list_size]] <- matrix(0,nrow = n_mcmc,ncol = nrow(x_train)+length(interaction_list))
-          main_effects_test_list[[list_size]] <- matrix(0,nrow = n_mcmc,ncol = nrow(x_test)+length(interaction_list))
+          main_effects_train_list[[list_size]] <- matrix(0,nrow = n_mcmc,ncol = nrow(x_train))
+          main_effects_test_list[[list_size]] <- matrix(0,nrow = n_mcmc,ncol = nrow(x_test))
         }
 
-        names(main_effects_train_list) <- names(main_effects_test_list) <- c(dummy_x$continuousVars, "x.1 | x.2")
+        # Renaming the main list
+        if(interaction_term){
+          internames_ <- lapply(interaction_list,function(vars_){paste0("x",paste0(vars_,collapse = ":"))})
+          names(main_effects_train_list) <- names(main_effects_test_list) <- c(dummy_x$continuousVars, internames_)
+        } else {
+          names(main_effects_train_list) <- names(main_effects_test_list) <-dummy_x$continuousVars
+        }
+
 
       } else { # In case there are no interactions
         main_effects_train_list <- main_effects_test_list <- vector("list", length = length(dummy_x$continuousVars))
@@ -727,7 +735,7 @@ rspBART <- function(x_train,
   # plot(colMeans(all_y_hat_norm),y_train)
   # sqrt(crossprod((colMeans(all_y_hat_norm)-y_train))/n_)
 
-  # plot(x_test[,5],main_effects_test_list[[5]][1:i,] %>% colMeans(), ylab = "y")
+  # plot(10*sin(pi*x_train_scale[,1]*x_train_scale[,2]),main_effects_train_list[[11]][1:i,] %>% colMeans(), ylab = "y")
 
   # ====== Few analyses from the results ======
   #           (Uncomment to run those)
@@ -768,7 +776,7 @@ rspBART <- function(x_train,
   #     }
   #
   # }
-  # rmse(x = sim_train$,y = all_y_hat_test_norm %>% colMeans())
+  # rmse(x = sim_test$y,y = all_y_hat_test_norm %>% colMeans())
 
   # Return the list with all objects and parameters
   return(list(y_train_hat = all_y_hat_norm,
