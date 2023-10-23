@@ -172,7 +172,7 @@ all_bart_lite <- function(cv_element,
                       use_bs = use_bs_,all_var = rsp_bart_all_,
                       stump = FALSE,dif_order = dif_order_,
                       motrbart_bool = motr_bart_,
-                      scale_init = scale_init_,
+                      scale_init = scale_init_,interaction_term = TRUE,interaction_list = list(c(1,2)),
                       update_tau_beta = update_tau_beta_)
 
 
