@@ -599,8 +599,8 @@ rspBART <- function(x_train,
       # Running the plot functions
       # ==========================
 
-      if(plot_preview){
-        choose_dimension <- 11
+      if(!plot_preview){
+        choose_dimension <- 6
         if(t==1){
           plot(x_train_scale[,choose_dimension],tree_predictions$y_train_hat[,choose_dimension], pch = 20, main = paste0("X",choose_dimension," partial pred"),ylim = range(y_scale),
                col = ggplot2::alpha("black",0.2))
