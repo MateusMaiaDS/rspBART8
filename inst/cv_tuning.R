@@ -13,7 +13,7 @@ n_ <- 250
 sd_ <- 1
 n_rep_ <- 10
 nIknots_ <- 5
-ntree_ <- 50
+ntree_ <- 1
 dif_order_ <- 1
 use_bs_ <- FALSE
 seed_ <- 42
@@ -21,7 +21,7 @@ motr_bart_ <- FALSE
 all_ <- TRUE
 alpha_ <- 0.95
 stump_ <- TRUE
-scale_init_ <- FALSE
+scale_init_ <- TRUE
 update_tau_beta_ <- TRUE
 
 # Selecting a simulated scenarion
