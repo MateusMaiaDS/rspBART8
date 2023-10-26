@@ -8,14 +8,14 @@ sd_ <- 1
 # sim_train <- mlbench.friedman1.nointeraction(n = n_,sd = sd_)  |> as.data.frame()
 # sim_test <- mlbench.friedman1.nointeraction(n = n_,sd = sd_)  |> as.data.frame()
 #
-# sim_train <- mlbench.friedman1.nointeraction.noise(n = n_,sd = sd_)  |> as.data.frame()
-# sim_test <- mlbench.friedman1.nointeraction.noise(n = n_,sd = sd_)  |> as.data.frame()
+sim_train <- mlbench.friedman1.nointeraction.noise(n = n_,sd = sd_)  |> as.data.frame()
+sim_test <- mlbench.friedman1.nointeraction.noise(n = n_,sd = sd_)  |> as.data.frame()
 
 # sim_train <- mlbench.friedman1(n = n_,sd = sd_)  |> as.data.frame()
 # sim_test <- mlbench.friedman1(n = n_,sd = sd_)  |> as.data.frame()
 
-sim_train <- mlbench.d1.break(n = n_,sd = 1)  |> as.data.frame()
-sim_test <- mlbench.d1.break(n = n_,sd = 1) |> as.data.frame()
+# sim_train <- mlbench.d1.break(n = n_,sd = 1)  |> as.data.frame()
+# sim_test <- mlbench.d1.break(n = n_,sd = 1) |> as.data.frame()
 
 # sim_train <- mlbench.d1(n = n_,sd = 1)  |> as.data.frame()
 # sim_test <- mlbench.d1(n = n_,sd = 1) |> as.data.frame()
@@ -48,13 +48,13 @@ nIknots = 2
 dif_order = 1
 motrbart_bool <- FALSE
 use_bs <- FALSE
-plot_preview = TRUE
+plot_preview = FALSE
 intercept <- FALSE
-all_var <- TRUE
+all_var <- FALSE
 scale_init <- TRUE
-update_tau_beta <- TRUE
+update_tau_beta <- FALSE
 stump <- FALSE
-main_effects_pred <- TRUE
+main_effects_pred <- FALSE
 # interaction_list_ <- interaction_list <- list(c(1,2))
 interaction_list <- NULL
 

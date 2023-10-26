@@ -121,11 +121,11 @@ nodeLogLike <- function(curr_part_res,
   if(data$dif_order==0){
       cov_aux <- diag(x = (data$tau^(-1)),nrow = n_leaf) + D_leaf%*%tcrossprod(diag_tau_beta_inv,D_leaf)
   } else {
-      cov_aux <- diag(x = (data$tau^(-1)),nrow = n_leaf) + D_leaf%*%tcrossprod(data$P,D_leaf)
+      cov_aux <- diag(x = (data$tau^(-1)),nrow = n_leaf) + D_leaf%*%tcrossprod(data$P[D_subset_index,D_subset_index],D_leaf)
 
   }
 
-    result <- mvnfast::dmvn(X = curr_part_res_leaf,mu = mean_aux,sigma = cov_aux,log = TRUE)
+  result <- mvnfast::dmvn(X = curr_part_res_leaf,mu = mean_aux,sigma = cov_aux,log = TRUE)
 
 
   return(c(result))

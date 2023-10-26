@@ -364,6 +364,7 @@ rspBART <- function(x_train,
     tau_beta <- rep(tau_mu,NCOL(x_train_scale))
   }
 
+
   # In this first scenario we are going to work with a single value of \tau
   if(interaction_term){
     all_tau_beta <- matrix(NA, nrow = (n_mcmc), ncol = NCOL(x_train_scale)+length(interaction_list))
@@ -607,7 +608,7 @@ rspBART <- function(x_train,
       # Running the plot functions
       # ==========================
 
-      if(!plot_preview){
+      if(plot_preview){
         choose_dimension <- 6
         if(t==1){
           plot(x_train_scale[,choose_dimension],tree_predictions$y_train_hat[,choose_dimension], pch = 20, main = paste0("X",choose_dimension," partial pred"),ylim = range(y_scale),
@@ -617,7 +618,7 @@ rspBART <- function(x_train,
         }
       }
 
-      if(!plot_preview){
+      if(plot_preview){
         # points(x_train_scale[,choose_dimension],x1_pred, pch=20, col = "blue")
         plot(10*(sin(x_train_scale[,1]*x_train_scale[,2])),tree_predictions$y_hat_test[,11], pch=20, col = "blue")
         x1_pred <- numeric(nrow(x_train))
