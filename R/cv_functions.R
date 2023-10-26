@@ -163,7 +163,7 @@ all_bart_lite <- function(cv_element,
   # # Removing the model
   # rm(spBART)
 
-  if(rsp_bart_all_){
+  # if(rsp_bart_all_){
     # Running the model
     spBART <- rspBART(x_train = x_train,
                       x_test = x_test,y_train = y_train,
@@ -172,7 +172,9 @@ all_bart_lite <- function(cv_element,
                       use_bs = use_bs_,all_var = rsp_bart_all_,
                       stump = FALSE,dif_order = dif_order_,
                       motrbart_bool = motr_bart_,
-                      scale_init = scale_init_,interaction_term = TRUE,interaction_list = list(c(1,2)),
+                      scale_init = scale_init_,
+                      interaction_term = FALSE,
+                      interaction_list = NULL,
                       update_tau_beta = update_tau_beta_)
 
 
@@ -205,7 +207,7 @@ all_bart_lite <- function(cv_element,
 
     # Removing the model
     rm(spBART)
-  }
+  # }
 
 
   #   if(rsp_bart_all_){

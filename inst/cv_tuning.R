@@ -12,23 +12,23 @@ set.seed(42)
 n_ <- 250
 sd_ <- 1
 n_rep_ <- 10
-nIknots_ <- 5
-ntree_ <- 1
+nIknots_ <- 2
+ntree_ <- 200
 dif_order_ <- 1
 use_bs_ <- FALSE
 seed_ <- 42
 motr_bart_ <- FALSE
-all_ <- TRUE
+all_ <- FALSE
 alpha_ <- 0.95
 stump_ <- TRUE
 scale_init_ <- TRUE
-update_tau_beta_ <- TRUE
+update_tau_beta_ <- FALSE
 
 # Selecting a simulated scenarion
 # (1): "oned_break" one dimensionnal sin(2*x) with a break
 # (2): "friedman_nointer_nonoise": four-dimensional friedmna setting with no interaction terms and no extra X noise variables
 
-type_ <- c("friedman_inter_noise")
+type_ <- c("friedman_nointer_noise")
 
 # type_ <- c("friedman_inter_noise")
 
