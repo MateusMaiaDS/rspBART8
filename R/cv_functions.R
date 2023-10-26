@@ -626,3 +626,279 @@ tree_length_counter <- function(result_,rep_, only_sp = FALSE){
   return(matrix_tree)
 
 }
+
+# =======
+# k_fold
+# =======
+kfold <- function(data_,
+                  nfold_ = 10,
+                  seed_){
+
+  # Always set a seed
+  if(is.null(seed_)){
+    stop("Insert a valid seed.")
+  }
+
+  # Setting a seed
+  set.seed(seed_)
+
+  # Getting the cv
+  cv_object_ <- vector("list",length = nfold_)
+
+  # Getting the indentifier
+  fold_index <- dismo::kfold(x = data_,k = nfold_)
+
+  for(i in 1:nfold_){
+
+    # Creating a list to store all information
+    data_train <- data_[fold_index!=i,]
+    data_test <- data_[fold_index==i,]
+    x_train <- data_train[,which(colnames(data_train)!="y"), drop = FALSE]
+    x_test <- data_test[,which(colnames(data_train)!="y"), drop = FALSE]
+    y_train <- data_train[["y"]]
+    y_test <- data_test[["y"]]
+
+    # List witha all elements
+    obj_ <- list(data_train = data_train,
+                 data_test = data_test,
+                 x_train = x_train,
+                 x_test = x_test,
+                 y_train = y_train,
+                 y_test = y_test,
+                 seed = seed_)
+
+    cv_object_[[i]] <- obj_
+
+  }
+
+  # Return the list with all cv_objects
+  return(cv_object_)
+
+}
+
+# spBART competitors
+competitors_comparison_ <- function(cv_object_fold_,
+                                    fold_,
+                                    seed_,
+                                    interaction_term_,
+                                    interaction_list_,
+                                    return_models = TRUE){
+
+  # Setting a seed
+  set.seed(cv_object_fold_$seed)
+
+  # Initialising df
+  comparison_metrics <- data.frame(metric = NULL,
+                                   value = NULL,
+                                   model = NULL,
+                                   fold = NULL)
+
+
+  # Running all the models
+  x_train <- cv_object_fold_$x_train
+  x_test <- cv_object_fold_$x_test
+  y_train <- cv_object_fold_$y_train
+  y_test <- cv_object_fold_$y_test
+  train <- cv_object_fold_$data_train
+  test <- cv_object_fold_$data_test
+  j <- fold_
+
+  # Loading packages
+  library(dbarts)
+  library(SoftBart)
+  library(earth)
+  library(mgcv)
+  library(MOTRbart)
+
+  # Running all models
+  bartmod <- dbarts::bart(x.train = x_train,y.train = y_train,x.test = x_test)
+  softbartmod <- SoftBart::softbart(X = x_train,Y = y_train,X_test = x_test)
+  motrbartmod <- MOTRbart::motr_bart(x = x_train,y = y_train)
+  motrbart_pred <- predict_motr_bart(motrbartmod,x_test,type = "mean")
+
+  if(interaction_term_){
+
+    # MARS
+    marsmod <- earth(y~., data = train,degree = length(interaction_list_))
+    marsmod_pred <- predict(marsmod,x_test)
+
+    # Fitting mgcv
+    main_effects_formula <- paste0(paste0("s(",colnames(x_train),", bs = 'cr')"),collapse = "+")
+    interactions <- character(0)
+    for(i in 1:length(interaction_list_)){
+      interactions[i] <- paste0("te(",paste0(paste0("",colnames(x_train)[interaction_list_[[i]]],""),collapse = ","),", bs = 'cr')")
+
+    }
+
+    interactions <- paste0(interactions,collapse = " + ")
+
+    # Getting the final formula
+    mgcv_formula <- formula(paste0("y~",paste0(c(main_effects_formula,interactions),collapse = "+")))
+
+    gammod <- gam(mgcv_formula,data = train)
+    gammod_pred <- predict(gammod,x_test)
+
+  } else {
+
+    marsmod <- earth(y~., data = train,degree = 1)
+    marsmod_pred <- predict(marsmod,x_test)
+
+    main_effects_formula <- paste0(paste0("s(",colnames(x_train),", bs = 'cr')"),collapse = "+")
+    mgcv_formula <- formula(paste0("y~",paste0(c(main_effects_formula),collapse = "+")))
+
+    gammod <- gam(mgcv_formula,data = train)
+    gammod_pred <- predict(gammod,x_test)
+
+  }
+
+  # ==================================
+  # Calculating all metrics from now
+  # ==================================
+
+  # ============================
+  # Calculating metrics for BART
+  # ============================
+
+  comparison_metrics <- rbind(comparison_metrics,data.frame(metric = "rmse_train",
+                                                            value = rmse(x = bartmod$yhat.train.mean,
+                                                                         y = train$y),
+                                                            model = "BART",fold = j))
+
+  comparison_metrics <- rbind(comparison_metrics,data.frame(metric = "rmse_test",
+                                                            value = rmse(x = bartmod$yhat.test.mean,
+                                                                         y = test$y),
+                                                            model = "BART",fold = j))
+
+  # Calculating the CRPS as well
+  comparison_metrics <- rbind(comparison_metrics,data.frame(metric = "crps_train",
+                                                            value = crps(y = train$y ,
+                                                                         means = bartmod$yhat.train.mean,
+                                                                         sds = rep(mean(bartmod$sigma), length(train$y) ))$CRPS,
+                                                            model = "BART",fold = j))
+
+  comparison_metrics <- rbind(comparison_metrics,data.frame(metric = "crps_test",
+                                                            value = crps(y = test$y ,
+                                                                         means = bartmod$yhat.test.mean,
+                                                                         sds = rep(mean(bartmod$sigma), length(test$y) ))$CRPS,
+                                                            model = "BART",fold = j))
+
+
+  # ============================
+  # Calculating metrics for softBART
+  # ============================
+
+  comparison_metrics <- rbind(comparison_metrics,data.frame(metric = "rmse_train",
+                                                            value = rmse(x = softbartmod$y_hat_train_mean,
+                                                                         y = train$y),
+                                                            model = "softBART",fold = j))
+
+  comparison_metrics <- rbind(comparison_metrics,data.frame(metric = "rmse_test",
+                                                            value = rmse(x = softbartmod$y_hat_test_mean,
+                                                                         y = test$y),
+                                                            model = "softBART",fold = j))
+
+  # Calculating the CRPS as well
+  comparison_metrics <- rbind(comparison_metrics,data.frame(metric = "crps_train",
+                                                            value = crps(y = train$y ,
+                                                                         means = softbartmod$y_hat_train_mean,
+                                                                         sds = rep(mean(softbartmod$sigma), length(train$y) ))$CRPS,
+                                                            model = "softBART",fold = j))
+
+  comparison_metrics <- rbind(comparison_metrics,data.frame(metric = "crps_test",
+                                                            value = crps(y = test$y ,
+                                                                         means = softbartmod$y_hat_test_mean,
+                                                                         sds = rep(mean(softbartmod$sigma), length(test$y) ))$CRPS,
+                                                            model = "softBART",fold = j))
+  # ============================
+  # Calculating metrics for MOTRBART
+  # ============================
+  comparison_metrics <- rbind(comparison_metrics,data.frame(metric = "rmse_train",
+                                                            value = rmse(x = colMeans(motrbartmod$y_hat),
+                                                                         y = train$y),
+                                                            model = "motrBART",fold = j))
+
+  comparison_metrics <- rbind(comparison_metrics,data.frame(metric = "rmse_test",
+                                                            value = rmse(x = colMeans(motrbart_pred),
+                                                                         y = test$y),
+                                                            model = "motrBART",fold = j))
+
+    # Calculating the CRPS as well
+  comparison_metrics <- rbind(comparison_metrics,data.frame(metric = "crps_train",
+                                                            value = crps(y = train$y ,
+                                                                         means = colMeans(motrbartmod$y_hat),
+                                                                         sds = rep(mean(sqrt(motrbartmod$sigma2)), length(train$y) ))$CRPS,
+                                                            model = "motrBART",fold = j))
+
+  comparison_metrics <- rbind(comparison_metrics,data.frame(metric = "crps_test",
+                                                            value = crps(y = test$y ,
+                                                                         means = colMeans(motrbart_pred),
+                                                                         sds = rep(mean(sqrt(motrbartmod$sigma2)), length(test$y) ))$CRPS,
+                                                            model = "motrBART",fold = j))
+
+  # ============================
+  # Calculating metrics for MARS
+  # ============================
+  comparison_metrics <- rbind(comparison_metrics,data.frame(metric = "rmse_train",
+                                                            value = rmse(x = c(marsmod$fitted.values),
+                                                                         y = train$y),
+                                                            model = "MARS",fold = j))
+
+  comparison_metrics <- rbind(comparison_metrics,data.frame(metric = "rmse_test",
+                                                            value = rmse(x = c(marsmod_pred),
+                                                                         y = test$y),
+                                                            model = "MARS",fold = j))
+
+  # Calculating the CRPS as well
+  comparison_metrics <- rbind(comparison_metrics,data.frame(metric = "crps_train",
+                                                            value = crps(y = train$y ,
+                                                                         means = c(marsmod$fitted.values),
+                                                                         sds = rep(sigma(marsmod), length(train$y) ))$CRPS,
+                                                            model = "MARS",fold = j))
+
+  comparison_metrics <- rbind(comparison_metrics,data.frame(metric = "crps_test",
+                                                            value = crps(y = test$y ,
+                                                                         means = c(marsmod_pred),
+                                                                         sds = rep(sigma(marsmod), length(test$y) ))$CRPS,
+                                                            model = "MARS",fold = j))
+
+  # ============================
+  # Calculating metrics for GAM
+  # ============================
+  comparison_metrics <- rbind(comparison_metrics,data.frame(metric = "rmse_train",
+                                                            value = rmse(x = c(gammod$fitted.values),
+                                                                         y = train$y),
+                                                            model = "GAM",fold = j))
+
+  comparison_metrics <- rbind(comparison_metrics,data.frame(metric = "rmse_test",
+                                                            value = rmse(x = c(gammod_pred),
+                                                                         y = test$y),
+                                                            model = "GAM",fold = j))
+
+  # Calculating the CRPS as well
+  comparison_metrics <- rbind(comparison_metrics,data.frame(metric = "crps_train",
+                                                            value = crps(y = train$y ,
+                                                                         means = c(gammod$fitted.values),
+                                                                         sds = rep(sigma(marsmod), length(train$y) ))$CRPS,
+                                                            model = "GAM",fold = j))
+
+  comparison_metrics <- rbind(comparison_metrics,data.frame(metric = "crps_test",
+                                                            value = crps(y = test$y ,
+                                                                         means = c(gammod_pred),
+                                                                         sds = rep(sigma(marsmod), length(test$y) ))$CRPS,
+                                                            model = "GAM",fold = j))
+  # Returning a list with all elements
+  if(return_models){
+    return(list(comparison_metrics = comparison_metrics,
+                bartmod = bartmod,
+                softbartmod = softbartmod,
+                motrbartmod = motrbartmod,
+                motrbart_pred = motrbart_pred,
+                marsmod = marsmod,
+                marsmod_pred = marsmod_pred,
+                gammod = gammod,
+                gammod_pred = gammod_pred))
+  } else {
+    return(list(comparison_metrics = comparison_metrics))
+  }
+
+}

@@ -40,9 +40,15 @@ rspBART <- function(x_train,
 ) {
 
 
+  # Another constrain
   if(interaction_term & is.null(interaction_list)){
     stop("Define the interaction list.")
   }
+
+  if(isFALSE(interaction_term) & !is.null(interaction_list)){
+    stop("Is a model without the interaction but a interaction list is defined")
+  }
+
   # Verifying if x_train and x_test are matrices
   if(!is.data.frame(x_train) || !is.data.frame(x_test)){
     stop("Insert valid data.frame for both data and xnew.")
@@ -299,7 +305,8 @@ rspBART <- function(x_train,
     m_tilda <- mean(diag(tcrossprod(D_train)))
     tau_mu <- (4*n_tree*(kappa^2))/((max_y-min_y)^2)
     # tau_mu <- (4*n_tree*(kappa^2)*(m_tilda)*(nIknots-1))/((max_y-min_y)^2)
-    tau_mu <- (4*n_tree*(kappa^2)*(m_tilda))/((max_y-min_y)^2)
+    # tau_mu <- (4*n_tree*(kappa^2)*(m_tilda))/((max_y-min_y)^2)
+    tau_mu <- (4*n_tree*(kappa^2))/((max_y-min_y)^2)
 
 
 
@@ -458,7 +465,8 @@ rspBART <- function(x_train,
   # Creating the penalty matrix
 
   all_P <- replicate(NCOL(x_train_scale),
-                     P_gen(D_train_ = B_train_obj[[1]],dif_order_ = dif_order,tau_mu_ = 1),simplify = FALSE)
+                     P_gen(D_train_ = B_train_obj[[1]],dif_order_ = dif_order,tau_mu_ = 1,
+                           eta = tau_mu),simplify = FALSE)
   if(interaction_term){
     # Adding the penalty term for the interactions
     for( ii in 1:length(interaction_list)){
@@ -609,7 +617,7 @@ rspBART <- function(x_train,
         }
       }
 
-      if(plot_preview){
+      if(!plot_preview){
         # points(x_train_scale[,choose_dimension],x1_pred, pch=20, col = "blue")
         plot(10*(sin(x_train_scale[,1]*x_train_scale[,2])),tree_predictions$y_hat_test[,11], pch=20, col = "blue")
         x1_pred <- numeric(nrow(x_train))

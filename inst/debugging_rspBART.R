@@ -1,20 +1,21 @@
 library(mlbench)
 rm(list=ls())
 devtools::load_all()
+seed_ <- 42
 set.seed(42)
 n_ <- 250
 sd_ <- 1
 # sim_train <- mlbench.friedman1.nointeraction(n = n_,sd = sd_)  |> as.data.frame()
 # sim_test <- mlbench.friedman1.nointeraction(n = n_,sd = sd_)  |> as.data.frame()
 #
-sim_train <- mlbench.friedman1.nointeraction.noise(n = n_,sd = sd_)  |> as.data.frame()
-sim_test <- mlbench.friedman1.nointeraction.noise(n = n_,sd = sd_)  |> as.data.frame()
+# sim_train <- mlbench.friedman1.nointeraction.noise(n = n_,sd = sd_)  |> as.data.frame()
+# sim_test <- mlbench.friedman1.nointeraction.noise(n = n_,sd = sd_)  |> as.data.frame()
 
-sim_train <- mlbench.friedman1(n = n_,sd = sd_)  |> as.data.frame()
-sim_test <- mlbench.friedman1(n = n_,sd = sd_)  |> as.data.frame()
+# sim_train <- mlbench.friedman1(n = n_,sd = sd_)  |> as.data.frame()
+# sim_test <- mlbench.friedman1(n = n_,sd = sd_)  |> as.data.frame()
 
-# sim_train <- mlbench.d1.break(n = n_,sd = 1)  |> as.data.frame()
-# sim_test <- mlbench.d1.break(n = n_,sd = 1) |> as.data.frame()
+sim_train <- mlbench.d1.break(n = n_,sd = 1)  |> as.data.frame()
+sim_test <- mlbench.d1.break(n = n_,sd = 1) |> as.data.frame()
 
 # sim_train <- mlbench.d1(n = n_,sd = 1)  |> as.data.frame()
 # sim_test <- mlbench.d1(n = n_,sd = 1) |> as.data.frame()
@@ -25,7 +26,7 @@ y_train <- sim_train$y
 
 # x_train <- x_train[,1:5]
 # x_test <- x_test[,1:5]
-n_tree <- 1
+n_tree <- 10
 node_min_size = 5
 n_mcmc = 3000
 n_burn = 500
@@ -47,12 +48,17 @@ nIknots = 2
 dif_order = 1
 motrbart_bool <- FALSE
 use_bs <- FALSE
-plot_preview = FALSE
+plot_preview = TRUE
 intercept <- FALSE
 all_var <- TRUE
-scale_init <- FALSE
+scale_init <- TRUE
 update_tau_beta <- TRUE
 stump <- FALSE
 main_effects_pred <- TRUE
-interaction_list <- list(c(1,2))
-interaction_term <- TRUE
+# interaction_list_ <- interaction_list <- list(c(1,2))
+interaction_list <- NULL
+
+interaction_term <- FALSE
+cv_object_ <- kfold(data_ = sim_train,nfold_ = 10,seed_ = 42)
+fold_ <- 1
+cv_object_fold_ <- cv_object_[[fold_]]

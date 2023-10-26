@@ -1,3 +1,4 @@
+# Function to get the tensors
 multiply_matrices_general <- function(A, B) {
   # Get the number of rows and columns for A and B
   nrow_A <- nrow(A)
@@ -12,32 +13,33 @@ multiply_matrices_general <- function(A, B) {
   }
   # Loop to fill in the values of matrix C
   for (i in 2:ncol_A) {
-      C <-  cbind(C,(A[, i]*B))
+    C <-  cbind(C,(A[, i]*B))
   }
   return(C)
 }
 
 # A function to create the penalty matrix P
-P_gen <- function(D_train_, dif_order_,tau_mu_){
+P_gen <- function(D_train_, dif_order_,tau_mu_,eta){
 
   P_train_ <- crossprod(diff(diag(NCOL(D_train_)),differences = dif_order_))*tau_mu_
 
   if(dif_order_==1){
-      if(nrow(P_train_)%%2==0){
-        middle_ <- trunc(nrow(P_train_)/2)+1
-      } else {
-        middle_ <- trunc(nrow(P_train_)/2)
-      }
-    P_train_[middle_,middle_] = P_train_[middle_,middle_] + tau_mu_
+    if(nrow(P_train_)%%2==0){
+      middle_ <- trunc(nrow(P_train_)/2)+1
+    } else {
+      middle_ <- trunc(nrow(P_train_)/2)
+    }
+    # middle_ <- 1
+    P_train_[middle_,middle_] = P_train_[middle_,middle_] + eta
   } else if(dif_order_==2) {
-    P_train_[1,1] = P_train_[1,1] + tau_mu_
+    P_train_[1,1] = P_train_[1,1] + eta
     if(nrow(P_train_)%%2==0){
       middle_ <- trunc(nrow(P_train_)/2)+1
     } else {
       middle_ <- trunc(nrow(P_train_)/2)
     }
     # P_train_[NCOL(P_train_), NCOL(P_train_)] <- P_train_[NCOL(P_train_), NCOL(P_train_)] + tau_mu_
-    P_train_[middle_,middle_] = P_train_[middle_,middle_] + tau_mu_
+    P_train_[middle_,middle_] = P_train_[middle_,middle_] + eta
   } else if (dif_order_>2) {
     stop("Insert a lower order for the difference matrix")
   }
