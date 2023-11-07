@@ -40,8 +40,20 @@ P_gen <- function(D_train_, dif_order_,tau_mu_,eta){
     }
     # P_train_[NCOL(P_train_), NCOL(P_train_)] <- P_train_[NCOL(P_train_), NCOL(P_train_)] + tau_mu_
     P_train_[middle_,middle_] = P_train_[middle_,middle_] + eta
-  } else if (dif_order_>2) {
+  } else if (dif_order_==3) {
+    P_train_[1,1] = P_train_[1,1] + eta
+    P_train_[nrow(P_train_),ncol(P_train_)] = P_train_[nrow(P_train_),ncol(P_train_)] + eta
+    if(nrow(P_train_)%%2==0){
+      middle_ <- trunc(nrow(P_train_)/2)+1
+    } else {
+      middle_ <- trunc(nrow(P_train_)/2)
+    }
+    # P_train_[NCOL(P_train_), NCOL(P_train_)] <- P_train_[NCOL(P_train_), NCOL(P_train_)] + tau_mu_
+    P_train_[middle_,middle_] = P_train_[middle_,middle_] + eta
+
+  } else {
     stop("Insert a lower order for the difference matrix")
+
   }
 
   return(P_train_)

@@ -467,7 +467,7 @@ rspBART <- function(x_train,
 
   all_P <- replicate(NCOL(x_train_scale),
                      P_gen(D_train_ = B_train_obj[[1]],dif_order_ = dif_order,tau_mu_ = 1,
-                           eta = tau_mu),simplify = FALSE)
+                           eta = 1),simplify = FALSE)
   if(interaction_term){
     # Adding the penalty term for the interactions
     for( ii in 1:length(interaction_list)){

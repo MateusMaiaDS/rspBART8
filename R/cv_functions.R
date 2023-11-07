@@ -101,7 +101,8 @@ all_bart_lite <- function(cv_element,
                      stump_,
                      scale_init_,
                      update_tau_beta_,
-                     dif_order_){
+                     dif_order_,
+                     interaction_term_){
 
 
   # Doing a warming for the case whichI don't have
@@ -165,6 +166,8 @@ all_bart_lite <- function(cv_element,
 
   # if(rsp_bart_all_){
     # Running the model
+
+    if(interaction_term_){
     spBART <- rspBART(x_train = x_train,
                       x_test = x_test,y_train = y_train,
                       n_mcmc = 2500,node_min_size = 5,alpha = alpha_,
@@ -173,11 +176,23 @@ all_bart_lite <- function(cv_element,
                       stump = FALSE,dif_order = dif_order_,
                       motrbart_bool = motr_bart_,
                       scale_init = scale_init_,
-                      interaction_term = FALSE,
-                      interaction_list = NULL,
+                      interaction_term = interaction_term_,
+                      interaction_list = list(c(1,2)),
                       update_tau_beta = update_tau_beta_)
 
-
+    } else {
+      spBART <- rspBART(x_train = x_train,
+                        x_test = x_test,y_train = y_train,
+                        n_mcmc = 2500,node_min_size = 5,alpha = alpha_,
+                        n_burn = 0,nIknots = nIknots_,n_tree = ntree_,
+                        use_bs = use_bs_,all_var = rsp_bart_all_,
+                        stump = FALSE,dif_order = dif_order_,
+                        motrbart_bool = motr_bart_,
+                        scale_init = scale_init_,
+                        interaction_term = FALSE,
+                        interaction_list = NULL,
+                        update_tau_beta = update_tau_beta_)
+    }
     n_burn_ <- 500
     n_mcmc_ <- spBART$mcmc$n_mcmc
 
@@ -711,12 +726,15 @@ competitors_comparison_ <- function(cv_object_fold_,
   library(earth)
   library(mgcv)
   library(MOTRbart)
+  library(BASS)
 
   # Running all models
   bartmod <- dbarts::bart(x.train = x_train,y.train = y_train,x.test = x_test)
   softbartmod <- SoftBart::softbart(X = x_train,Y = y_train,X_test = x_test)
   motrbartmod <- MOTRbart::motr_bart(x = x_train,y = y_train)
   motrbart_pred <- predict_motr_bart(motrbartmod,x_test,type = "mean")
+  bassmod <- BASS::bass(xx = x_train,y = y_train)
+  bass_pred <- predict(bassmod,x_test)
 
   if(interaction_term_){
 
@@ -888,6 +906,35 @@ competitors_comparison_ <- function(cv_object_fold_,
                                                                          means = c(gammod_pred),
                                                                          sds = rep(sigma(marsmod), length(test$y) ))$CRPS,
                                                             model = "GAM",fold = j))
+
+
+  # =======================================
+  #     Doing a comparison with BASS
+  # =======================================
+
+  comparison_metrics <- rbind(comparison_metrics,data.frame(metric = "rmse_train",
+                                                            value = rmse(x = c(bassmod$yhat.mean),
+                                                                         y = train$y),
+                                                            model = "BASS",fold = j))
+
+  comparison_metrics <- rbind(comparison_metrics,data.frame(metric = "rmse_test",
+                                                            value = rmse(x = colMeans(bass_pred),
+                                                                         y = test$y),
+                                                            model = "BASS",fold = j))
+
+  # Calculating the CRPS as well
+  comparison_metrics <- rbind(comparison_metrics,data.frame(metric = "crps_train",
+                                                            value = crps(y = train$y ,
+                                                                         means = c(bassmod$yhat.mean),
+                                                                         sds = rep(mean(bassmod$s2), length(train$y) ))$CRPS,
+                                                            model = "BASS",fold = j))
+
+  comparison_metrics <- rbind(comparison_metrics,data.frame(metric = "crps_test",
+                                                            value = crps(y = test$y ,
+                                                                         means = colMeans(bass_pred),
+                                                                         sds = rep(mean(bassmod$s2), length(test$y) ))$CRPS,
+                                                            model = "BASS",fold = j))
+
   # Returning a list with all elements
   if(return_models){
     return(list(comparison_metrics = comparison_metrics,
@@ -898,7 +945,9 @@ competitors_comparison_ <- function(cv_object_fold_,
                 marsmod = marsmod,
                 marsmod_pred = marsmod_pred,
                 gammod = gammod,
-                gammod_pred = gammod_pred))
+                gammod_pred = gammod_pred,
+                bassmod = bassmod,
+                bass_pred = bass_pred))
   } else {
     return(list(comparison_metrics = comparison_metrics))
   }

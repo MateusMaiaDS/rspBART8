@@ -12,23 +12,23 @@ set.seed(42)
 n_ <- 250
 sd_ <- 1
 n_rep_ <- 10
-nIknots_ <- 2
-ntree_ <- 200
+nIknots_ <- 10
+ntree_ <- 20
 dif_order_ <- 1
 use_bs_ <- FALSE
 seed_ <- 42
 motr_bart_ <- FALSE
-all_ <- FALSE
+all_ <- TRUE
 alpha_ <- 0.95
 stump_ <- TRUE
 scale_init_ <- TRUE
-update_tau_beta_ <- FALSE
-
+update_tau_beta_ <- TRUE
+inter_ <- TRUE
 # Selecting a simulated scenarion
 # (1): "oned_break" one dimensionnal sin(2*x) with a break
 # (2): "friedman_nointer_nonoise": four-dimensional friedmna setting with no interaction terms and no extra X noise variables
-
-type_ <- c("friedman_nointer_noise")
+# (3): "interaction
+type_ <- c("friedman_inter_noise")
 
 # type_ <- c("friedman_inter_noise")
 
@@ -66,6 +66,11 @@ for( i in 1:n_rep_){
       train <- mlbench.friedman1(n = n_,sd = sd_) %>% as.data.frame()
       test <- mlbench.friedman1(n = n_,sd = sd_) %>% as.data.frame()
     }
+
+    if(type_ == "friedman_interaction"){
+      train <- mlbench.friedman1.interaction.only(n = n_,sd = sd_) %>% as.data.frame()
+      test <- mlbench.friedman1.interaction.only(n = n_,sd = sd_) %>% as.data.frame()
+    }
     # train <- mlbench.d1.break(n = n_,sd = sd_)  |> as.data.frame()
     # test <- mlbench.d1.break(n = n_,sd = sd_) |> as.data.frame()
 
@@ -97,7 +102,8 @@ result <- foreach(i = 1:n_rep_, .packages = c("dbarts","SoftBart","MOTRbart","dp
                          nIknots_ = nIknots_,ntree_ = ntree_,seed_ = seed_,
                          use_bs_ = use_bs_,alpha_ = alpha_,rsp_bart_all_ = all_,
                          j = i,motr_bart_ = motr_bart_, stump = stump_,dif_order_ = dif_order_,
-                         scale_init = scale_init_,update_tau_beta_ = update_tau_beta_)
+                         scale_init = scale_init_,update_tau_beta_ = update_tau_beta_,
+                         interaction_term_ = inter_)
   # }
 
   aux
@@ -138,7 +144,7 @@ if(type_ == "friedman_nointer_nonoise"){
 }
 
 if(type_ == "friedman_inter_noise"){
-      saveRDS(object = result,file = paste0("/users/research/mmarques/spline_bart_lab/preliminar_results/rspBART8/friedman/interaction_oned_n_",n_,
+      saveRDS(object = result,file = paste0("/users/research/mmarques/spline_bart_lab/preliminar_results/rspBART8/friedman/interaction_",inter_,"_oned_n_",n_,
                                             "_sd_",sd_,"_nIknots_",nIknots_,"_ntree_",ntree_,"_bs_",use_bs_,
                                             "_motr_bart_",motr_bart_,"_allvar_",all_,"_stump_",stump_,
                                             "_sinit_",scale_init_,"_alpha_",alpha_,"_uptaubeta_",update_tau_beta_,"_dif_",dif_order_,".Rds"))

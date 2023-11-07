@@ -12,6 +12,16 @@ mlbench.friedman1.nointeraction <- function (n, sd = 1)
   list(x = x, y = y)
 }
 
+mlbench.friedman1.interaction.only <- function (n, sd = 1)
+{
+  x <- matrix(runif(2* n), ncol = 2)
+  y <- 10 * sin(pi * x[, 1]*x[,2])
+  if (sd > 0) {
+    y <- y + rnorm(n, sd = sd)
+  }
+  list(x = x, y = y)
+}
+
 mlbench.friedman1.nointeraction.noise <- function (n, sd = 1)
 {
   x <- matrix(runif(8 * n), ncol = 8)

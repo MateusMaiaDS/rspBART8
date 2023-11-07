@@ -8,17 +8,23 @@ sd_ <- 1
 # sim_train <- mlbench.friedman1.nointeraction(n = n_,sd = sd_)  |> as.data.frame()
 # sim_test <- mlbench.friedman1.nointeraction(n = n_,sd = sd_)  |> as.data.frame()
 #
-sim_train <- mlbench.friedman1.nointeraction.noise(n = n_,sd = sd_)  |> as.data.frame()
-sim_test <- mlbench.friedman1.nointeraction.noise(n = n_,sd = sd_)  |> as.data.frame()
+# sim_train <- mlbench.friedman1.nointeraction.noise(n = n_,sd = sd_)  |> as.data.frame()
+# sim_test <- mlbench.friedman1.nointeraction.noise(n = n_,sd = sd_)  |> as.data.frame()
 
-# sim_train <- mlbench.friedman1(n = n_,sd = sd_)  |> as.data.frame()
-# sim_test <- mlbench.friedman1(n = n_,sd = sd_)  |> as.data.frame()
+sim_train <- mlbench.friedman1(n = n_,sd = sd_)  |> as.data.frame()
+sim_test <- mlbench.friedman1(n = n_,sd = sd_)  |> as.data.frame()
 
 # sim_train <- mlbench.d1.break(n = n_,sd = 1)  |> as.data.frame()
 # sim_test <- mlbench.d1.break(n = n_,sd = 1) |> as.data.frame()
 
 # sim_train <- mlbench.d1(n = n_,sd = 1)  |> as.data.frame()
 # sim_test <- mlbench.d1(n = n_,sd = 1) |> as.data.frame()
+
+
+# Testing the model with only interactions
+# sim_train <- mlbench.friedman1.interaction.only(n = n_,sd = sd_) %>% as.data.frame()
+# sim_test <- mlbench.friedman1.interaction.only(n = n_,sd = sd_) %>% as.data.frame()
+
 
 x_train <- sim_train |> dplyr::select(dplyr::starts_with("x"))
 x_test <-  sim_test|> dplyr::select(dplyr::starts_with("x"))
@@ -50,15 +56,53 @@ motrbart_bool <- FALSE
 use_bs <- FALSE
 plot_preview = FALSE
 intercept <- FALSE
-all_var <- FALSE
+all_var <- TRUE
 scale_init <- TRUE
-update_tau_beta <- FALSE
+update_tau_beta <- TRUE
 stump <- FALSE
-main_effects_pred <- FALSE
-# interaction_list_ <- interaction_list <- list(c(1,2))
-interaction_list <- NULL
+main_effects_pred <- TRUE
+interaction_list_ <- interaction_list <- list(c(1,2))
+# interaction_list <- NULL
 
-interaction_term <- FALSE
+interaction_term <- TRUE
 cv_object_ <- kfold(data_ = sim_train,nfold_ = 10,seed_ = 42)
 fold_ <- 1
 cv_object_fold_ <- cv_object_[[fold_]]
+
+# =======================
+# Doing some extra plots
+# =======================
+# par(mfrow = c(2,2))
+# plot(x_test, cex = sim_test$y/5, pch = 20, main = paste("Test sample: 10*sin(pi*x1*x2)"))
+# plot(x_test, cex = colMeans(all_y_hat_test_norm)/5, pch = 20,main = paste("Test \\hat sample: 10*sin(pi*x1*x2)"))
+# rmse(sim_test$y, colMeans(all_y_hat_test_norm))
+
+# #==========================
+# # Plotting the main effects
+# # =========================
+# # Marginal plots
+# selected_var_ <- 1
+# plot(x_train[,selected_var_],colMeans(main_effects_train_list[[selected_var_]]),pch = 20, ylab = expression(f(x[1])),
+# xlab = expression(x[1]), main = paste0("Main effect for: ",expression(x[1])))
+#
+# selected_var_ <- 2
+# plot(x_train[,selected_var_],colMeans(main_effects_train_list[[selected_var_]]),pch = 20,
+#      ylab = expression(f(x[2])), xlab = expression(x[2]),
+#      main = paste0("Main effect for: ",expression(x[2])))
+#
+#
+# # Comparing with BART and softBART
+# softbart_mod <- SoftBart::softbart(X = x_train,Y = y_train,X_test = x_test)
+# plot(x_test, cex = softbart_mod$y_hat_test_mean/10, pch = 20,main = paste("SoftBART \\hat sample: 10*sin(pi*x1*x2)"))
+# rmse(sim_test$y, softbart_mod$y_hat_test_mean)
+#
+#
+# bartmod <- dbarts::bart(x.train = x_train,y.train = y_train,x.test = x_test)
+# rmse(sim_test$y,bartmod$yhat.test.mean)
+#
+#
+# install.packages("BASS")
+# bass_mod <- BASS::bass(xx = x_train,y = y_train,degree = 2)
+# summary(bass_mod)
+# predict_bass_mod <- predict(bass_mod,x_test)
+# rmse(predict_bass_mod %>% colMeans(),sim_test$y)
