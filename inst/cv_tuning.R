@@ -12,9 +12,9 @@ set.seed(42)
 n_ <- 250
 sd_ <- 1
 n_rep_ <- 10
-nIknots_ <- 10
+nIknots_ <- 5
 ntree_ <- 20
-dif_order_ <- 1
+dif_order_ <- 2
 use_bs_ <- FALSE
 seed_ <- 42
 motr_bart_ <- FALSE
@@ -98,7 +98,7 @@ result <- foreach(i = 1:n_rep_, .packages = c("dbarts","SoftBart","MOTRbart","dp
   #                   use_bs_ = use_bs_,motr_bart_ = motr_bart_,rsp_bart_all_ = all_,
   #                   alpha_ = alpha_,stump = stump_)
   # } else {
-    aux <- all_bart_lite(cv_element = cv_[[i]],
+    aux <- all_bart_lite_interaction(cv_element = cv_[[i]],
                          nIknots_ = nIknots_,ntree_ = ntree_,seed_ = seed_,
                          use_bs_ = use_bs_,alpha_ = alpha_,rsp_bart_all_ = all_,
                          j = i,motr_bart_ = motr_bart_, stump = stump_,dif_order_ = dif_order_,
@@ -144,7 +144,7 @@ if(type_ == "friedman_nointer_nonoise"){
 }
 
 if(type_ == "friedman_inter_noise"){
-      saveRDS(object = result,file = paste0("/users/research/mmarques/spline_bart_lab/preliminar_results/rspBART8/friedman/interaction_",inter_,"_oned_n_",n_,
+      saveRDS(object = result,file = paste0("/users/research/mmarques/spline_bart_lab/preliminar_results/rspBART8/friedman/new_interaction_",inter_,"_oned_n_",n_,
                                             "_sd_",sd_,"_nIknots_",nIknots_,"_ntree_",ntree_,"_bs_",use_bs_,
                                             "_motr_bart_",motr_bart_,"_allvar_",all_,"_stump_",stump_,
                                             "_sinit_",scale_init_,"_alpha_",alpha_,"_uptaubeta_",update_tau_beta_,"_dif_",dif_order_,".Rds"))
